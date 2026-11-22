@@ -4,54 +4,321 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KoalaClips</title>
-<meta name="description" content="KoalaClips: herramienta de escritorio que convierte directos de gaming en clips verticales y los publica en YouTube Shorts, Instagram Reels y TikTok.">
+<meta name="description" content="KoalaClips: aplicación de escritorio que convierte directos de gaming en clips verticales u horizontales, con subtítulos por IA, clipeo en vivo y publicación en YouTube Shorts, Instagram Reels y TikTok.">
 <link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@700&family=Inter:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@700&family=Inter:wght@400;600&family=Luckiest+Guy&display=swap">
 <style>
-:root{--bg:#0e1015;--panel:#161921;--line:#2b303c;--fg:#e8eaf0;--muted:#a3aabb;--accent:#ffb547;--game:#4cc9f0;color-scheme:dark}
-@media (prefers-color-scheme: light){:root{--bg:#f4f5f8;--panel:#fff;--line:#dadde5;--fg:#151821;--muted:#596074;--accent:#c97a00;--game:#0a86b4;color-scheme:light}}
+:root{--bg:#0e1015;--panel:#161921;--panel2:#1d212b;--line:#2b303c;--fg:#e8eaf0;--muted:#a3aabb;--accent:#ffb547;--accent-fg:#1d1505;--game:#4cc9f0;--ok:#5ad19a;--bad:#ff7a7a;color-scheme:dark}
+@media (prefers-color-scheme: light){:root{--bg:#f4f5f8;--panel:#fff;--panel2:#eef0f4;--line:#dadde5;--fg:#151821;--muted:#596074;--accent:#c97a00;--accent-fg:#fff;--game:#0a86b4;--ok:#14874f;--bad:#c43c3c;color-scheme:light}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 "Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:820px;margin:0 auto;padding:28px max(18px,env(safe-area-inset-left)) 60px}
+.wrap{max-width:980px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-left)) 60px}
 header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:28px}
 header img{width:52px;height:52px;border-radius:13px}
 header .brand{font:700 22px/1.1 "Sora",system-ui,sans-serif}
 header .sub{color:var(--muted);font-size:14px}
 nav{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-size:14px}
 a{color:var(--game)}
-h1{font:700 32px/1.2 "Sora",system-ui,sans-serif;margin:0 0 8px;text-wrap:balance}
-h2{font:700 20px/1.3 "Sora",system-ui,sans-serif;margin:30px 0 8px}
-h3{font-size:16px;margin:20px 0 4px}
+h1{font:700 34px/1.2 "Sora",system-ui,sans-serif;margin:0 0 10px;text-wrap:balance}
+h2{font:700 22px/1.3 "Sora",system-ui,sans-serif;margin:44px 0 10px;text-wrap:balance}
+h3{font-size:16px;margin:0 0 4px}
 p,li{max-width:68ch}
 .muted{color:var(--muted)}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:18px 0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.lang{border-top:1px solid var(--line);margin-top:40px;padding-top:10px}
-footer{margin-top:50px;border-top:1px solid var(--line);padding-top:14px;font-size:13px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.grid .card p{margin:4px 0 0;font-size:14.5px}
 .pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:13px;color:var(--muted);margin:2px}
+.lang{border-top:1px solid var(--line);margin-top:48px;padding-top:12px}
+footer{margin-top:50px;border-top:1px solid var(--line);padding-top:14px;font-size:13px;color:var(--muted)}
+.ico{font-size:22px;line-height:1;display:block;margin-bottom:8px}
+
+/* demo */
+.demo{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tabs button,.seg button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);border-radius:9px;padding:7px 12px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button[aria-pressed="true"]{color:var(--fg);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.pane{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:start}
+.pane[hidden]{display:none}
+.ctl{display:flex;flex-direction:column;gap:14px;min-width:0}
+.ctl .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin-bottom:6px;display:block}
+.ctl p{margin:0;font-size:14.5px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btn{font:inherit;font-weight:600;font-size:14px;border:0;border-radius:9px;padding:9px 14px;cursor:pointer;background:var(--accent);color:var(--accent-fg)}
+.btn.ghost{background:var(--panel2);color:var(--fg);border:1px solid var(--line)}
+
+/* teléfono */
+.phone{width:216px;aspect-ratio:9/16;border-radius:26px;border:6px solid #050608;background:#000;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:width .35s,aspect-ratio .35s}
+.phone.h{width:min(384px,80vw);aspect-ratio:16/9;border-radius:18px}
+.scr{position:absolute;inset:0}
+.cam{position:absolute;left:0;right:0;top:0;background:linear-gradient(135deg,#7a3b16,#d9822b);display:flex;align-items:center;justify-content:center;font-size:44px;transition:height .25s,top .25s}
+.game{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(160deg,#0b2a45,#2a7fb5 55%,#9fe0ff);overflow:hidden;transition:height .25s,top .25s}
+.game::before{content:"";position:absolute;left:12%;right:12%;bottom:14%;height:26%;background:linear-gradient(90deg,#1d6b2e,#3fa34d);border-radius:40% 40% 0 0;opacity:.85}
+.game::after{content:"🎮";position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);font-size:30px}
+.blur{position:absolute;inset:-20px;background:linear-gradient(160deg,#0b2a45,#2a7fb5 55%,#9fe0ff);filter:blur(14px) brightness(.6)}
+.mid{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);aspect-ratio:16/9;background:linear-gradient(160deg,#0b2a45,#2a7fb5 55%,#9fe0ff);overflow:hidden}
+.mid .mcam{position:absolute;left:4%;top:6%;width:26%;aspect-ratio:16/9;background:linear-gradient(135deg,#7a3b16,#d9822b);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.cap{position:absolute;left:6%;right:6%;text-align:center;font-family:"Luckiest Guy","Arial Black",Impact,sans-serif;color:#fff;letter-spacing:.02em;line-height:1.05;text-shadow:0 2px 0 #111,0 3px 0 #111,2px 2px 0 #000,-2px 2px 0 #000;-webkit-text-stroke:1px #000;transform:translateY(-50%);pointer-events:none;transition:top .25s}
+.cap span{display:inline-block;margin:0 .14em;transition:transform .1s,color .1s}
+.cap span.on{transform:scale(1.15)}
+.logo{position:absolute;font:700 10px/1 "Sora",sans-serif;background:#53fc18;color:#000;padding:4px 6px;border-radius:4px;letter-spacing:.04em}
+
+/* en vivo */
+.meter{width:min(380px,80vw);height:190px;border-radius:14px;background:#0a0c10;border:1px solid var(--line);display:block}
+.log{font-size:13px;display:flex;flex-direction:column;gap:3px;max-height:150px;overflow:auto;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:60px}
+.log .hit{color:var(--accent);font-weight:600}
+.log time{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:6px}
+.bubble{min-height:24px;font-size:14px;color:var(--muted)}
+
+/* publicar */
+.flow{display:flex;flex-direction:column;gap:8px;width:min(340px,80vw)}
+.step{display:flex;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;opacity:.35;transition:opacity .3s,border-color .3s}
+.step.on{opacity:1;border-color:var(--accent)}
+.step b{font-variant-numeric:tabular-nums;color:var(--accent)}
+.tg{display:flex;align-items:center;gap:8px;font-size:14.5px}
+.tg input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+@media (max-width:720px){.pane{grid-template-columns:minmax(0,1fr)}.pane>.view{justify-self:center}h1{font-size:28px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body><div class="wrap">
 <header><img src="logo.png" alt=""><div><div class="brand">KoalaClips</div><div class="sub">by KoalaTTv</div></div>
 <nav><a href="index.html">Inicio · Home</a><a href="terminos.html">Términos · Terms</a><a href="privacidad.html">Privacidad · Privacy</a></nav></header>
 
-<h1>Tus directos, convertidos en clips verticales</h1>
-<p class="muted">KoalaClips es una aplicación de escritorio para Windows hecha por el creador <b>KoalaTTv</b>. Toma la grabación de un directo de videojuegos, encuentra los mejores momentos y los convierte en videos verticales 1080×1920 listos para redes sociales.</p>
-<div class="grid">
-<div class="card"><h3>✂️ Clips automáticos</h3><p class="muted">Analiza el audio del directo y propone los momentos más intensos. El creador los revisa y elige.</p></div>
-<div class="card"><h3>📱 Formato vertical</h3><p class="muted">Recorta la cámara y el juego y los acomoda en 9:16, con subtítulos y logos opcionales.</p></div>
-<div class="card"><h3>🚀 Publicar</h3><p class="muted">Con autorización del creador, publica los clips en su propia cuenta de YouTube, Instagram y TikTok mediante las API oficiales.</p></div>
+<h1>Tus directos, convertidos en clips listos para redes</h1>
+<p class="muted">KoalaClips es una aplicación de escritorio para Windows hecha por el creador <b>KoalaTTv</b>. Toma la grabación de un directo de videojuegos —o el directo mientras pasa— encuentra los mejores momentos y los convierte en clips verticales 1080×1920 u horizontales 1920×1080, con subtítulos, listos para YouTube Shorts, Instagram Reels y TikTok. Todo se procesa en la computadora del creador.</p>
+<p><span class="pill">YouTube Shorts</span><span class="pill">Instagram Reels</span><span class="pill">TikTok</span><span class="pill">OBS</span><span class="pill">Windows</span></p>
+
+<h2>Pruébalo aquí</h2>
+<p class="muted">Una muestra de las opciones del programa. Toca los botones: así se ve lo que eliges en la app.</p>
+<div class="demo">
+  <div class="tabs" role="tablist" aria-label="Opciones de KoalaClips">
+    <button role="tab" aria-selected="true" aria-controls="p-dis" id="t-dis">Diseño</button>
+    <button role="tab" aria-selected="false" aria-controls="p-sub" id="t-sub">Subtítulos</button>
+    <button role="tab" aria-selected="false" aria-controls="p-viv" id="t-viv">Clipear en vivo</button>
+    <button role="tab" aria-selected="false" aria-controls="p-pub" id="t-pub">Publicar</button>
+  </div>
+
+  <!-- Diseño -->
+  <div class="pane" id="p-dis" role="tabpanel" aria-labelledby="t-dis">
+    <div class="ctl">
+      <p>Elige cómo se acomoda el directo en el clip. En <b>Cámara + juego</b> recortas tu cámara y el juego como en OBS y los apilas; también puedes sacar el video completo con fondo difuminado, o un clip horizontal para YouTube.</p>
+      <div><span class="lbl">Diseño</span><div class="seg" id="dLay"><button data-v="stack" aria-pressed="true">Cámara + juego</button><button data-v="fit" aria-pressed="false">Video completo</button><button data-v="horiz" aria-pressed="false">Horizontal 16:9</button></div></div>
+      <div id="dCamRow"><span class="lbl">Alto de la cámara</span><input type="range" id="dCamH" min="22" max="60" value="32" aria-label="Alto de la cámara"></div>
+      <div id="dPosRow"><span class="lbl">Cámara</span><div class="seg" id="dCamTop"><button data-v="1" aria-pressed="true">Arriba</button><button data-v="0" aria-pressed="false">Abajo</button></div></div>
+      <label class="tg"><input type="checkbox" id="dLogo" checked> Logo del canal</label>
+    </div>
+    <div class="view"><div class="phone" id="ph1"><div class="scr" id="scr1"></div></div></div>
+  </div>
+
+  <!-- Subtítulos -->
+  <div class="pane" id="p-sub" role="tabpanel" aria-labelledby="t-sub" hidden>
+    <div class="ctl">
+      <p>Una IA escucha el audio <b>en tu propia PC</b> y escribe los subtítulos palabra por palabra, sincronizados con la voz. La palabra que suena se resalta. Después puedes corregir cualquier frase.</p>
+      <div><span class="lbl">Color de la palabra que suena</span><div class="seg" id="sCol"><button data-v="#FFE14D" aria-pressed="true">Amarillo</button><button data-v="#3DF27A" aria-pressed="false">Verde</button><button data-v="#FF5AD9" aria-pressed="false">Rosa</button><button data-v="#FF3030" aria-pressed="false">Rojo</button></div></div>
+      <div><span class="lbl">Dónde van</span><div class="seg" id="sPos"><button data-v="16" aria-pressed="false">Arriba</button><button data-v="34" aria-pressed="true">Entre cámara y juego</button><button data-v="62" aria-pressed="false">Centro</button><button data-v="80" aria-pressed="false">Abajo</button></div></div>
+      <div><span class="lbl">Tamaño</span><input type="range" id="sSize" min="70" max="140" value="100" aria-label="Tamaño de los subtítulos"></div>
+    </div>
+    <div class="view"><div class="phone" id="ph2"><div class="scr" id="scr2"></div></div></div>
+  </div>
+
+  <!-- En vivo -->
+  <div class="pane" id="p-viv" role="tabpanel" aria-labelledby="t-viv" hidden>
+    <div class="ctl">
+      <p>Mientras transmites, KoalaClips se conecta con OBS y guarda los últimos segundos. Cuando el volumen se dispara (gritos, risas, explosiones) o cuando dices <b>«koala clips clipea eso»</b>, hace el clip solo. También funciona con el link de un directo de Twitch, Kick o YouTube.</p>
+      <div><span class="lbl">Sensibilidad</span><div class="seg" id="vSens"><button data-v="14" aria-pressed="false">Baja</button><button data-v="10" aria-pressed="true">Media</button><button data-v="7" aria-pressed="false">Alta</button></div></div>
+      <div><span class="lbl">Límite de clips</span><div class="seg" id="vMax"><button data-v="3" aria-pressed="true">3</button><button data-v="5" aria-pressed="false">5</button><button data-v="10" aria-pressed="false">10</button></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="vGo">Empezar</button><button class="btn ghost" id="vSay" disabled>🎙️ Decir «koala clips clipea eso»</button></div>
+      <div class="bubble" id="vHeard" aria-live="polite"></div>
+    </div>
+    <div class="view" style="display:flex;flex-direction:column;gap:10px">
+      <canvas class="meter" id="vMeter" width="760" height="380" aria-label="Volumen del directo"></canvas>
+      <div class="log" id="vLog" aria-live="polite"><span class="muted">Dale Empezar para simular un directo.</span></div>
+    </div>
+  </div>
+
+  <!-- Publicar -->
+  <div class="pane" id="p-pub" role="tabpanel" aria-labelledby="t-pub" hidden>
+    <div class="ctl">
+      <p>Conecta tus cuentas con las pantallas oficiales de cada red. Puedes publicar clip por clip, o usar <b>Exportar y publicar</b>: eliges antes dónde, con qué descripción y privacidad, y cada clip se publica apenas termina. En TikTok también puedes mandarlo a tus borradores para terminarlo en la app.</p>
+      <div><span class="lbl">Publicar en</span>
+        <label class="tg"><input type="checkbox" class="pnet" value="YouTube Shorts" checked> YouTube Shorts</label>
+        <label class="tg"><input type="checkbox" class="pnet" value="Instagram Reels" checked> Instagram Reels</label>
+        <label class="tg"><input type="checkbox" class="pnet" value="TikTok (borrador)"> TikTok (a borradores)</label></div>
+      <div><span class="lbl">Modo</span><div class="seg" id="pMode"><button data-v="ready" aria-pressed="false">Dejar listo y publicar yo</button><button data-v="auto" aria-pressed="true">Exportar y publicar solo</button></div></div>
+      <button class="btn" id="pGo" style="align-self:flex-start">Ver cómo pasa</button>
+    </div>
+    <div class="view"><div class="flow" id="pFlow"></div></div>
+  </div>
 </div>
+
+<h2>Todo lo que hace</h2>
+<div class="grid">
+<div class="card"><span class="ico">✂️</span><h3>Clips automáticos</h3><p class="muted">Analiza el directo y propone los momentos más intensos (10, 15, 20, 25 o 30). Tú los revisas, los ajustas y eliges.</p></div>
+<div class="card"><span class="ico">🔎</span><h3>Busca por palabra</h3><p class="muted">Escribe una palabra o frase y encuentra cada momento del directo en que se dijo, para clipear justo lo anterior.</p></div>
+<div class="card"><span class="ico">🎥</span><h3>Cámara + juego</h3><p class="muted">Recorta la cámara y el gameplay libremente, como en OBS, con mejora de nitidez para que la cámara no pierda calidad.</p></div>
+<div class="card"><span class="ico">💬</span><h3>Subtítulos con IA</h3><p class="muted">Whisper en tu tarjeta gráfica: subtítulos palabra por palabra, con colores, tamaño y posición a tu gusto.</p></div>
+<div class="card"><span class="ico">🔴</span><h3>Clipear en vivo</h3><p class="muted">Con OBS o con el link de un directo: clipea por momentos fuertes, por tu frase o cuando el chat de Twitch explota. Con límite de clips.</p></div>
+<div class="card"><span class="ico">⏯️</span><h3>Clips en varios tramos</h3><p class="muted">Pausa y sigue el clip en otra parte del directo para juntar varios momentos en uno.</p></div>
+<div class="card"><span class="ico">💎</span><h3>Máxima calidad</h3><p class="muted">Exporta en H.264 con calidad alta y colores correctos para YouTube, Instagram y TikTok. Dos clips a la vez.</p></div>
+<div class="card"><span class="ico">🚀</span><h3>Exportar y publicar</h3><p class="muted">Marca muchos clips, elige las redes y vete a hacer otra cosa: se exportan y se publican solos.</p></div>
+</div>
+
 <h2>Cómo funciona</h2>
-<ol><li>El creador abre su grabación en KoalaClips, en su propia computadora.</li><li>Elige o ajusta los clips, el título, la descripción y la privacidad.</li><li>Pulsa <b>Publicar</b>: el video se envía a la red que eligió, en su cuenta. Nada se publica sin que el creador lo confirme.</li></ol>
-<p>Plataformas: <span class="pill">YouTube Shorts</span><span class="pill">Instagram Reels</span><span class="pill">TikTok</span></p>
+<ol><li>El creador abre su grabación en KoalaClips, en su propia computadora, o conecta su OBS para clipear en vivo.</li><li>Elige o ajusta los clips, el diseño, los subtítulos, el título, la descripción y la privacidad.</li><li>Pulsa <b>Publicar</b>, o activa antes la publicación automática eligiendo las cuentas: el video se envía solo a la red que eligió, en su cuenta. Nada se publica sin que el creador lo autorice.</li></ol>
+<p class="muted" style="font-size:14px">Para clipear directos de otros creadores, hazlo solo con su permiso.</p>
+
 <div class="lang">
-<h1>Your streams, turned into vertical clips</h1>
-<p class="muted">KoalaClips is a Windows desktop application made by the creator <b>KoalaTTv</b>. It takes a recorded gaming stream, finds the best moments and turns them into 1080×1920 vertical videos ready for social media.</p>
-<ol><li>The creator opens a recording in KoalaClips on their own computer.</li><li>They pick or adjust the clips, the title, the caption and the privacy setting.</li><li>They press <b>Publish</b>: the video is sent to the selected platform, to their own account, through the official APIs. Nothing is ever posted without the creator's explicit confirmation.</li></ol>
-<p>Videos are processed locally on the creator's computer. See our <a href="privacidad.html">Privacy Policy</a> and <a href="terminos.html">Terms of Service</a>.</p>
+<h1>Your streams, turned into ready-to-post clips</h1>
+<p class="muted">KoalaClips is a Windows desktop application made by the creator <b>KoalaTTv</b>. It takes a recorded gaming stream —or a live stream as it happens— finds the best moments and turns them into 1080×1920 vertical or 1920×1080 horizontal clips with AI subtitles, ready for YouTube Shorts, Instagram Reels and TikTok.</p>
+<ul>
+<li><b>Auto clips &amp; keyword search:</b> finds the most intense moments, or every moment a word was said.</li>
+<li><b>Camera + gameplay layout:</b> free cropping like OBS, plus full-video and horizontal formats.</li>
+<li><b>AI subtitles:</b> Whisper runs locally on the creator's GPU, with word-by-word timing.</li>
+<li><b>Live clipping:</b> connects to OBS's replay buffer (or a public stream link) and clips loud moments or when the creator says a keyword.</li>
+<li><b>Publishing:</b> to the creator's own accounts through the official APIs, one by one or automatically with settings chosen beforehand. TikTok posts can go to the creator's drafts.</li>
+</ul>
+<p>Videos are processed locally on the creator's computer. Nothing is posted without the creator's authorization. See our <a href="privacidad.html">Privacy Policy</a> and <a href="terminos.html">Terms of Service</a>.</p>
 </div>
 
 <footer>KoalaClips · Contacto / Contact: <a href="mailto:elianmelendez0000@gmail.com">elianmelendez0000@gmail.com</a></footer>
-</div></body></html>
+</div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+// pestañas
+$$('[role="tab"]').forEach(t => t.addEventListener("click", () => {
+  $$('[role="tab"]').forEach(x => { const on = x === t; x.setAttribute("aria-selected", on); $("#" + x.getAttribute("aria-controls")).hidden = !on; });
+  if (t.id === "t-viv") vDraw();
+}));
+function seg(id, fn) {
+  const el = $(id);
+  el.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); fn(b.dataset.v); });
+  return () => el.querySelector('[aria-pressed="true"]').dataset.v;
+}
+
+/* diseño */
+const D = { lay: "stack", camH: 32, top: true, logo: true };
+function drawDesign() {
+  const ph = $("#ph1"), s = $("#scr1");
+  ph.classList.toggle("h", D.lay === "horiz");
+  $("#dCamRow").hidden = $("#dPosRow").hidden = D.lay !== "stack";
+  let html = "";
+  if (D.lay === "stack") {
+    const c = D.camH, g = 100 - c;
+    html = `<div class="cam" style="top:${D.top ? 0 : g}%;height:${c}%">🙂</div><div class="game" style="top:${D.top ? c : 0}%;height:${g}%;bottom:auto"></div>`;
+    if (D.logo) html += `<div class="logo" style="left:6%;top:calc(${D.top ? c : g}% - 22px)">KICK</div>`;
+  } else if (D.lay === "fit") {
+    html = `<div class="blur"></div><div class="mid"><div class="mcam">🙂</div></div>`;
+    if (D.logo) html += `<div class="logo" style="left:6%;top:24%">KICK</div>`;
+  } else {
+    html = `<div class="mid" style="top:0;transform:none;height:100%;aspect-ratio:auto"><div class="mcam" style="font-size:18px">🙂</div></div>`;
+    if (D.logo) html += `<div class="logo" style="right:4%;top:6%">KICK</div>`;
+  }
+  s.innerHTML = html;
+}
+seg("#dLay", v => { D.lay = v; drawDesign(); });
+seg("#dCamTop", v => { D.top = v === "1"; drawDesign(); });
+$("#dCamH").addEventListener("input", e => { D.camH = +e.target.value; drawDesign(); });
+$("#dLogo").addEventListener("change", e => { D.logo = e.target.checked; drawDesign(); });
+drawDesign();
+
+/* subtítulos */
+const SUB = { col: "#FFE14D", pos: 34, size: 100 };
+const LINES = [["NO", "PUEDE", "SER"], ["¡LO", "LOGRÉ", "AL", "FIN!"], ["ESO", "FUE", "UNA", "LOCURA"]];
+let li = 0, wi = 0;
+function subFrame() {
+  const s = $("#scr2");
+  if (!s.firstChild) s.innerHTML = `<div class="cam" style="height:34%">😮</div><div class="game" style="top:34%;height:66%;bottom:auto"></div><div class="cap" id="cap"></div>`;
+  const cap = $("#cap"), words = LINES[li];
+  cap.style.top = SUB.pos + "%"; cap.style.fontSize = (20 * SUB.size / 100) + "px";
+  cap.innerHTML = words.map((w, i) => `<span class="${i === wi ? "on" : ""}" style="${i === wi ? "color:" + SUB.col : ""}">${w}</span>`).join(" ");
+}
+seg("#sCol", v => { SUB.col = v; subFrame(); });
+seg("#sPos", v => { SUB.pos = +v; subFrame(); });
+$("#sSize").addEventListener("input", e => { SUB.size = +e.target.value; subFrame(); });
+subFrame();
+if (!RM) setInterval(() => { wi++; if (wi >= LINES[li].length) { wi = 0; li = (li + 1) % LINES.length; } subFrame(); }, 420);
+
+/* en vivo: volumen simulado */
+const V = { on: false, hist: [], t: 0, made: 0, last: -99, spike: 0, iv: null };
+const sens = seg("#vSens", () => vDraw()), vmax = seg("#vMax", () => {});
+const clock = () => { const s = Math.floor(V.t); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
+function vLog(msg, hit) {
+  const l = $("#vLog"); if (l.firstChild && l.firstChild.classList && l.firstChild.classList.contains("muted")) l.innerHTML = "";
+  const d = document.createElement("div"); if (hit) d.className = "hit";
+  d.innerHTML = "<time>" + clock() + "</time>"; d.append(msg); l.prepend(d);
+}
+function clip(why) {
+  if (V.made >= +vmax()) return;
+  V.made++; V.last = V.t;
+  vLog("✂️ Clip " + V.made + ": " + why, true);
+  setTimeout(() => V.on && vLog("✅ Clip " + V.made + " listo en vertical, con subtítulos"), 1600);
+  if (V.made >= +vmax()) { vLog("Llegaste al límite de " + vmax() + " clips. Se para solo."); vStop(); }
+}
+function vStep() {
+  V.t += 0.1;
+  if (V.spike <= 0 && Math.random() < 0.012) V.spike = 14 + Math.random() * 12;
+  const base = -30 + Math.sin(V.t / 3) * 2 + (Math.random() - .5) * 5;
+  const db = V.spike > 0 ? base + 13 + Math.random() * 4 : base;
+  if (V.spike > 0) V.spike--;
+  V.hist.push(db); if (V.hist.length > 190) V.hist.shift();
+  const avg = V.hist.slice(-12).reduce((a, b) => a + b, 0) / Math.min(12, V.hist.length);
+  if (V.hist.length > 40 && avg > -30 + +sens() && V.t - V.last > 6) clip("momento fuerte");
+  vDraw();
+}
+function vDraw() {
+  const c = $("#vMeter"), x = c.getContext("2d"), W = c.width, H = c.height;
+  const y = db => H - (db + 50) / 40 * H;
+  x.fillStyle = "#0a0c10"; x.fillRect(0, 0, W, H);
+  const thr = -30 + +sens();
+  x.strokeStyle = "rgba(255,255,255,.5)"; x.setLineDash([10, 8]); x.lineWidth = 2;
+  x.beginPath(); x.moveTo(0, y(thr)); x.lineTo(W, y(thr)); x.stroke(); x.setLineDash([]);
+  x.fillStyle = "rgba(255,255,255,.6)"; x.font = "22px Inter,sans-serif"; x.fillText("umbral de momento fuerte", 14, y(thr) - 10);
+  const n = V.hist.length, bw = W / 190;
+  V.hist.forEach((db, i) => {
+    const hot = db > thr;
+    x.fillStyle = hot ? "#ff6b6b" : "#5ad19a";
+    const top = Math.max(0, y(db));
+    x.fillRect(W - (n - i) * bw, top, bw - 1, H - top);
+  });
+  if (!n) { x.fillStyle = "#8a90a0"; x.font = "24px Inter,sans-serif"; x.fillText("Volumen del directo", 14, H - 20); }
+}
+function vStop() { V.on = false; clearInterval(V.iv); $("#vGo").textContent = "Empezar otra vez"; $("#vSay").disabled = true; }
+$("#vGo").addEventListener("click", () => {
+  if (V.on) { vStop(); vLog("Parado."); return; }
+  Object.assign(V, { on: true, hist: [], t: 0, made: 0, last: -99, spike: 0 });
+  $("#vLog").innerHTML = ""; vLog("Conectado a OBS · búfer de repetición encendido");
+  $("#vGo").textContent = "Parar"; $("#vSay").disabled = false; $("#vHeard").textContent = "";
+  V.iv = setInterval(vStep, 100);
+});
+$("#vSay").addEventListener("click", () => {
+  if (!V.on) return;
+  $("#vHeard").textContent = "Escuché: «Koala Clips, clipea eso»";
+  clip("dijiste la frase (los segundos de antes)");
+});
+vDraw();
+
+/* publicar */
+const mode = seg("#pMode", () => pShow(false));
+function pShow(run) {
+  const nets = $$(".pnet").filter(i => i.checked).map(i => i.value);
+  const auto = mode() === "auto";
+  const steps = auto
+    ? ["Marcas los clips y eliges " + (nets.join(", ") || "las redes"), "Exporta 2 clips a la vez, en máxima calidad", ...nets.map(n => "Publica solo en " + n), "Listo, sin que tengas que estar ahí"]
+    : ["Exporta los clips a la carpeta Clips", "Los ves con ▶ Ver antes de publicar", "Escribes título y descripción", ...nets.map(n => "Pulsas Publicar → " + n)];
+  const f = $("#pFlow"); f.innerHTML = steps.map((s, i) => `<div class="step"><b>${i + 1}</b><span>${s}</span></div>`).join("");
+  const els = [...f.children];
+  if (!run || RM) { els.forEach(e => e.classList.add("on")); return; }
+  els.forEach((e, i) => setTimeout(() => e.classList.add("on"), 450 * i));
+}
+$$(".pnet").forEach(i => i.addEventListener("change", () => pShow(false)));
+$("#pGo").addEventListener("click", () => pShow(true));
+pShow(false);
+})();
+</script>
+</body></html>
